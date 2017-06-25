@@ -6,11 +6,13 @@ from urllib import request
 import jinja2
 from bs4 import BeautifulSoup
 from jinja2 import FileSystemLoader
+from os import path
 
 
 class PkgBuildGenerator(object):
+    _generator_dir = path.dirname(path.abspath(__file__))
     _template = 'PKGBUILD.j2'
-    _target = 'PKGBUILD'
+    _target = _generator_dir + '/../PKGBUILD'
     _pkg_type = 'deb'
 
     def __init__(self, mirror: str) -> object:
@@ -22,7 +24,7 @@ class PkgBuildGenerator(object):
         package_data = self._create_package_data()
         template_data = self._build_template_data(package_data)
 
-        env = jinja2.Environment(loader=FileSystemLoader('.'))
+        env = jinja2.Environment(loader=FileSystemLoader(self._generator_dir))
         t = env.get_template(self._template)
         with open(self._target, 'w') as f:
             f.write(t.render(template_data))
