@@ -9,13 +9,16 @@ from jinja2 import FileSystemLoader
 from os import path
 
 
+MIRROR = 'http://repository.spotify.com/pool/non-free/s/spotify-client/'
+
+
 class PkgBuildGenerator(object):
     _generator_dir = path.dirname(path.abspath(__file__))
     _template = 'PKGBUILD.j2'
     _target = _generator_dir + '/../PKGBUILD'
     _pkg_type = 'deb'
 
-    def __init__(self, mirror: str) -> object:
+    def __init__(self, mirror: str):
         if mirror[-1] is not '/':
             mirror += '/'
         self._mirror = mirror
@@ -71,7 +74,7 @@ class PkgBuildGenerator(object):
 class Package(object):
     _version_regex = 'spotify-client_([0-9.]+)\.([^-]+)-([0-9]+)'
 
-    def __init__(self, mirror: str, file: str) -> object:
+    def __init__(self, mirror: str, file: str):
         if mirror[-1] is not '/':
             mirror += '/'
         self._mirror = mirror
@@ -104,5 +107,6 @@ class Package(object):
         return self._version_match.group(3)
 
 
-generator = PkgBuildGenerator('http://repository.spotify.com/pool/non-free/s/spotify-client/')
-generator.generate()
+if __name__ == '__main__':
+    generator = PkgBuildGenerator(MIRROR)
+    generator.generate()
