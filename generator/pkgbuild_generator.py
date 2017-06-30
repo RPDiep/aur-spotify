@@ -114,10 +114,12 @@ class Package(object):
 
 
 if __name__ == '__main__':
-    # Genarate PKGBUILD
+    # Generate PKGBUILD
+    print(Generating PKGBUILD ...)
     generator = PkgBuildGenerator(MIRROR)
     generator.generate()
 
     # Generate .SRCINFO
+    print(Generating .SRCINFO ...)
     with open('.SRCINFO', 'w') as srcinfo:
         call(['makepkg', '--printsrcinfo'], stdout=srcinfo, cwd=generator.target_dir)
