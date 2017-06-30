@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import re
 from _sha256 import sha256
+from subprocess import call
 from urllib import request
 
 import jinja2
@@ -14,8 +15,9 @@ MIRROR = 'http://repository.spotify.com/pool/non-free/s/spotify-client/'
 
 class PkgBuildGenerator(object):
     _generator_dir = path.dirname(path.abspath(__file__))
+    _target_dir = path.dirname(_generator_dir)
     _template = 'PKGBUILD.j2'
-    _target = _generator_dir + '/../PKGBUILD'
+    _target = _target_dir + '/PKGBUILD'
     _pkg_type = 'deb'
 
     def __init__(self, mirror: str):
@@ -31,6 +33,10 @@ class PkgBuildGenerator(object):
         t = env.get_template(self._template)
         with open(self._target, 'w') as f:
             f.write(t.render(template_data))
+
+    @property
+    def target_dir(self):
+        return self._target_dir
 
     def _build_template_data(self, package_data: dict) -> dict:
         x86_64: Package = package_data['x86_64']
@@ -108,5 +114,10 @@ class Package(object):
 
 
 if __name__ == '__main__':
+    # Genarate PKGBUILD
     generator = PkgBuildGenerator(MIRROR)
     generator.generate()
+
+    # Generate .SRCINFO
+    with open('.SRCINFO', 'w') as srcinfo:
+        call(['makepkg', '--printsrcinfo'], stdout=srcinfo, cwd=generator.target_dir)

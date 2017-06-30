@@ -32,5 +32,5 @@ All "constants" are either provided as class properties or at the bottom of the 
 ## TODO
 
 * Dynamically generate info on static (included in repository) sources.
-* Run makepkg --printsrcinfo to update .SRCINFO. 
+* ~~Run makepkg --printsrcinfo to update .SRCINFO.~~
 * Provide feedback when generating checksums.
