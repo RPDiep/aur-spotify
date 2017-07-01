@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 import re
 from _sha256 import sha256
+from optparse import OptionParser
 from subprocess import call
 from urllib import request
 
+import output
 import jinja2
 from bs4 import BeautifulSoup
 from jinja2 import FileSystemLoader
@@ -11,7 +13,8 @@ from os import path
 
 
 MIRROR = 'http://repository.spotify.com/pool/non-free/s/spotify-client/'
-CHUNK_SIZE = 1024 * 1024 * 4 # 4MiB
+CHUNK_SIZE = 1024 * 1024 * 4  # 4MiB
+stdout = output.Output()
 
 
 class PkgBuildGenerator(object):
@@ -98,10 +101,15 @@ class Package(object):
 
     @property
     def shasum(self) -> str:
+        stdout.print('Calculating checksum of {}'.format(self.file))
         response = request.urlopen(self._mirror + self.file)
+        length = int(response.headers.get('content-length'))
         checksum = sha256()
+        count = 0
         for chunk in iter(lambda: response.read(CHUNK_SIZE), b''):
             checksum.update(chunk)
+            count += len(chunk)
+            stdout.progress(count, length)
 
         return checksum.hexdigest()
 
@@ -119,12 +127,20 @@ class Package(object):
 
 
 if __name__ == '__main__':
+    # handle cmdline args
+    parser = OptionParser()
+    parser.add_option("-q", "--quiet", dest="quiet", action="store_true",
+                      help="Suppress output on STDOUT")
+    (options, args) = parser.parse_args()
+
+    stdout = output.Output() if options.quiet else output.CmdLineOutput()
+
     # Generate PKGBUILD
-    print('Generating PKGBUILD ...')
+    stdout.print('Generating PKGBUILD ...')
     generator = PkgBuildGenerator(MIRROR)
     generator.generate()
 
     # Generate .SRCINFO
-    print('Generating .SRCINFO ...')
+    stdout.print('Generating .SRCINFO ...')
     with open('.SRCINFO', 'w') as srcinfo:
         call(['makepkg', '--printsrcinfo'], stdout=srcinfo, cwd=generator.target_dir)
