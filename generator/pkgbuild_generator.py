@@ -11,7 +11,7 @@ from os import path
 
 
 MIRROR = 'http://repository.spotify.com/pool/non-free/s/spotify-client/'
-CHUNK_SIZE = 1024 * 1024 * 4
+CHUNK_SIZE = 1024 * 1024 * 4 # 4MiB
 
 
 class PkgBuildGenerator(object):
