@@ -11,6 +11,7 @@ from os import path
 
 
 MIRROR = 'http://repository.spotify.com/pool/non-free/s/spotify-client/'
+CHUNK_SIZE = 1024 * 1024 * 4
 
 
 class PkgBuildGenerator(object):
@@ -97,8 +98,12 @@ class Package(object):
 
     @property
     def shasum(self) -> str:
-        contents = request.urlopen(self._mirror + self.file).read()
-        return sha256(contents).hexdigest()
+        response = request.urlopen(self._mirror + self.file)
+        checksum = sha256()
+        for chunk in iter(lambda: response.read(CHUNK_SIZE), b''):
+            checksum.update(chunk)
+
+        return checksum.hexdigest()
 
     @property
     def pkgver(self) -> str:
