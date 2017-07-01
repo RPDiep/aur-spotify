@@ -115,7 +115,7 @@ class Package(object):
 
     @property
     def pkgrel(self) -> int:
-        return self._version_match.group(3)
+        return int(self._version_match.group(3))
 
 
 if __name__ == '__main__':
