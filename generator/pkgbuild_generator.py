@@ -44,16 +44,13 @@ class PkgBuildGenerator(object):
 
     def _build_template_data(self, package_data: dict) -> dict:
         x86_64: Package = package_data['x86_64']
-        i686: Package = package_data['i686']
 
         template_data = {
             'mirror': self._mirror,
             'pkgver': x86_64.pkgver,
             'anotherpkgver': x86_64.pkgver_other,
             'amd64_pkgrel': x86_64.pkgrel,
-            'i386_pkgrel': i686.pkgrel,
-            'sha256sums_x86_64': x86_64.shasum,
-            'sha256sums_i686': i686.shasum,
+            'sha256sums_x86_64': x86_64.shasum
         }
 
         return template_data
@@ -97,7 +94,7 @@ class Package(object):
 
     @property
     def arch(self) -> str:
-        return 'x86_64' if 'amd64' in self.file else 'i686'
+        return 'x86_64' if 'amd64' in self.file else None
 
     @property
     def shasum(self) -> str:
@@ -142,5 +139,5 @@ if __name__ == '__main__':
 
     # Generate .SRCINFO
     stdout.print('Generating .SRCINFO ...')
-    with open('.SRCINFO', 'w') as srcinfo:
+    with open('{}/.SRCINFO'.format(generator.target_dir), 'w') as srcinfo:
         call(['makepkg', '--printsrcinfo'], stdout=srcinfo, cwd=generator.target_dir)
